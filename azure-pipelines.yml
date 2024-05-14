@@ -1,0 +1,43 @@
+trigger:
+  branches:
+    include:
+    - $(Build.SourceBranch)
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+
+# Install Flutter
+- task: FlutterInstall@0
+  inputs:
+    mode: 'flutter'
+
+# Enable Android licenses
+- script: |
+    echo "y" | $ANDROID_HOME/tools/bin/sdkmanager --install "build-tools;29.0.2" --install "platforms;android-29"
+  displayName: 'Enable Android licenses'
+
+# Build Flutter app for Android
+- task: FlutterBuild@0
+  inputs:
+    target: 'apk'
+    projectDirectory: 'flutter_app'
+
+# Run Flutter tests for Android
+- script: |
+    cd flutter_app
+    flutter test --target=./test/widget_test.dart --flavor=android
+  displayName: 'Run Flutter tests for Android'
+
+# Publish test results
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/TEST-*.xml'
+
+# Perform GitHub code analysis
+- script: |
+    flutter pub get
+    flutter analyze
+  displayName: 'Perform GitHub code analysis'
