@@ -2,8 +2,7 @@ trigger:
 - main
 
 pool:
-  vmImage: 'ubuntu-latest'
-
+ vmImage: 'windows-latest'
 variables:
   FLUTTER_VERSION: 'stable'  # You can change this to any specific version if needed
 
