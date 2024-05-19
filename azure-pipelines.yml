@@ -2,35 +2,29 @@ trigger:
 - main
 
 pool:
- vmImage: 'windows-latest'
+  vmImage: 'windows-latest'
+
 variables:
   FLUTTER_VERSION: 'stable'  # You can change this to any specific version if needed
 
 steps:
 - script: |
-    sudo apt-get update
-    sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa
-
-    # Install Flutter
-    git clone https://github.com/flutter/flutter.git -b $FLUTTER_VERSION --depth 1
+    curl -s https://storage.googleapis.com/flutter_infra/releases/stable/windows/flutter_windows_2.10.3-stable.zip -o flutter.zip
+    tar xf flutter.zip
     export PATH="$PATH:`pwd`/flutter/bin"
-    flutter doctor
+    flutter --version
+  displayName: 'Install Flutter'
 
-    # Pre-cache Flutter packages
-    flutter precache
+- script: flutter precache
+  displayName: 'Pre-cache Flutter Packages'
 
-    # Install dependencies
-    flutter pub get
-  displayName: 'Install Dependencies and Flutter SDK'
+- script: flutter pub get
+  displayName: 'Install Flutter Dependencies'
 
-- script: |
-    # Run Flutter tests
-    flutter test
+- script: flutter test
   displayName: 'Run Flutter Tests'
 
-- script: |
-    # Analyze the project
-    flutter analyze > analysis_result.log
+- script: flutter analyze > analysis_result.log
   displayName: 'Run Flutter Analyze'
 
 - task: SonarCloudPrepare@1
